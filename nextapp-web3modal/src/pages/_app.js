@@ -1,4 +1,5 @@
 import '@/styles/globals.css'
+
 import {
   EthereumClient,
   modalConnectors,
@@ -13,7 +14,7 @@ const chains = [arbitrum, mainnet, polygon];
 
 // Wagmi client
 const { provider } = configureChains(chains, [
-  walletConnectProvider({ projectId: PROJECT_ID }),
+  walletConnectProvider({ projectId: "<YOUR_PROJECT_ID>" }),
 ]);
 const wagmiClient = createClient({
   autoConnect: true,
@@ -28,17 +29,17 @@ const wagmiClient = createClient({
 
 // Web3Modal Ethereum Client
 const ethereumClient = new EthereumClient(wagmiClient, chains);
-
+console.log("ethereumClient",ethereumClient)
 export default function App({ Component, pageProps }) {
   return( 
     <>
-  <WagmiConfig client={wagmiClient}>
-  <Component {...pageProps} />
-  </WagmiConfig>
-  <Web3Modal
-  projectId={PROJECT_ID}
-  ethereumClient={ethereumClient}
-/>
+    <WagmiConfig client={wagmiClient}>
+  <Component ethereumClient={ethereumClient} pageProps={pageProps}  />
+</WagmiConfig>
+<Web3Modal
+        projectId={PROJECT_ID}
+        ethereumClient={ethereumClient}
+      />
 </>
   )
 }
