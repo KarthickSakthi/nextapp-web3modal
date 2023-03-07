@@ -1,0 +1,1 @@
+export const KikToken = "0x07999CF9067896502c84cAc2a0999F6989e13C5c";

@@ -4,28 +4,56 @@ import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
 import { EthereumProvider } from '@walletconnect/ethereum-provider';
 import UniversalProvider from "@walletconnect/universal-provider";
-import { ethers } from 'ethers';
+import { ethers , Contract} from 'ethers';
 import { PROJECT_ID } from '../../constants';
 import { Web3Button } from "@web3modal/react";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 const inter = Inter({ subsets: ['latin'] })
 import { useProvider } from 'wagmi'
+import { useWeb3Modal } from "@web3modal/react";
+import { polygonMumbai } from 'wagmi/chains';
+import { KikToken } from '../../contracts/Address';
+import KikAbi from "../../contracts/ABI/KikAbi.json";
 
 
 export default function Home({ethereumClient}) {
-  // console.log("Home", ethereumClient)
+  const {setDefaultChain} = useWeb3Modal();
+  const [walletAddress, setWalletAddress] = useState("");
+  const [rpcProvider, setRpcProvider] = useState();
+  const [signer, setSigner] = useState();
+  console.log("Home",ethereumClient, ethereumClient.getAccount())
   const provider = useProvider()
   useEffect( ()=>{
+    setWalletAddress(ethereumClient.getAccount().address);
+    walletAddress && ethereumClient?.switchNetwork({chainId: 80001})
     activateEtherProvider()
-  },[])
+  },[walletAddress])
 
-  const  activateEtherProvider = async()=>{
+  const  activateEtherProvider = async(address)=>{
     
-    const web3Provider = new ethers.providers.Web3Provider(provider);
+    const web3Provider = new ethers.providers.JsonRpcProvider("https://polygon-mumbai.g.alchemy.com/v2/VU1rJAQT6J-blcSRz16GC1pZYFpkif9G");
     // const provider =await new ethers.providers.Web3Provider(web3provider);
-    const signer = await web3Provider.getSigner();
-    const address = await signer.getAddress();
-    console.log("address",address)
+    console.log("JsonRpcProvider",web3Provider)
+    setRpcProvider(web3Provider);
+    const signer = await web3Provider.getSigner(address);
+    setSigner(signer);
+    const currentaddress =  address;
+    console.log("address",currentaddress)
+
+  }
+
+  const tokenApproveHandler =async () => {
+    const web3Provider = new ethers.providers.JsonRpcProvider("https://polygon-mumbai.g.alchemy.com/v2/VU1rJAQT6J-blcSRz16GC1pZYFpkif9G");
+    // const provider =await new ethers.providers.Web3Provider(web3provider);
+    const address = ethereumClient.getAccount().address;
+    // console.log("JsonRpcProvider",web3Provider)
+    const Signer = await web3Provider.getSigner(address);
+    const spender = address;
+
+    const KikTokenInit = new Contract(KikToken,KikAbi, Signer);
+    const transact =await KikTokenInit.approve(spender,"100");
+    const receipt = await transact.wait();
+    console.log("receip", receipt);
 
   }
   // const handleConnect = async() =>{
@@ -97,6 +125,7 @@ export default function Home({ethereumClient}) {
      {/* <Web3Button /> */}
      {/* <button onClick={handleConnect}>Connect Wallet</button> */}
       <Web3Button />
+      <button onClick={()=>{tokenApproveHandler(ethereumClient.getAccount().address)}}>Approve</button>
     </>
   )
 }
