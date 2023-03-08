@@ -14,6 +14,8 @@ import { useWeb3Modal } from "@web3modal/react";
 import { polygonMumbai } from 'wagmi/chains';
 import { KikToken } from '../../contracts/Address';
 import KikAbi from "../../contracts/ABI/KikAbi.json";
+import CounterAbi from "../../contracts/ABI/CounterAbi.json";
+import { Counter } from '../../contracts/Address';
 
 
 export default function Home({ethereumClient}) {
@@ -43,17 +45,24 @@ export default function Home({ethereumClient}) {
   }
 
   const tokenApproveHandler =async () => {
-    const web3Provider = new ethers.providers.JsonRpcProvider("https://polygon-mumbai.g.alchemy.com/v2/VU1rJAQT6J-blcSRz16GC1pZYFpkif9G");
+    try{
+    const web3Provider = new ethers.providers.JsonRpcProvider("https://polygon-mumbai.g.alchemy.com/v2/vxXqHmt5L5S4ivRET3fYtg8-N7g7uhYt");
     // const provider =await new ethers.providers.Web3Provider(web3provider);
     const address = ethereumClient.getAccount().address;
     // console.log("JsonRpcProvider",web3Provider)
     const Signer = await web3Provider.getSigner(address);
     const spender = address;
 
-    const KikTokenInit = new Contract(KikToken,KikAbi, Signer);
-    const transact =await KikTokenInit.approve(spender,"100");
+    const CounterContract = new Contract(Counter,CounterAbi, Signer);
+    const transact =await CounterContract.setCount(20);
+    // const transact =await KikTokenInit.address;
+    console.log("Token Address", transact);
     const receipt = await transact.wait();
     console.log("receip", receipt);
+    }
+    catch(error){
+      console.log("error",error)
+    }
 
   }
   // const handleConnect = async() =>{
