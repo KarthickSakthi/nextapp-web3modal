@@ -51,7 +51,7 @@ export default function Home({ethereumClient}) {
   
   console.log("Home",ethereumClient, ethereumClient.getAccount())
   console.log("ProviderHome", provider)
-  ethereumClient?.switchNetwork({chainId: 80001})
+  // ethereumClient?.switchNetwork({chainId: 80001})
   useEffect( ()=>{
     setDefaultChain(polygonMumbai)
     setWalletAddress(ethereumClient.getAccount().address);
@@ -62,20 +62,20 @@ export default function Home({ethereumClient}) {
 
   const tokenApproveHandler =async () => {
     try{
-    const web3Provider = new ethers.providers.JsonRpcProvider("https://polygon-mumbai.g.alchemy.com/v2/vxXqHmt5L5S4ivRET3fYtg8-N7g7uhYt");
+    // const web3Provider = new ethers.providers.JsonRpcProvider("https://polygon-mumbai.g.alchemy.com/v2/vxXqHmt5L5S4ivRET3fYtg8-N7g7uhYt");
 
-    const provider =await new ethers.providers.Web3Provider(web3Provider);
-    const address = ethereumClient.getAccount().address;
-    // console.log("JsonRpcProvider",web3Provider)
-    const Signer = await provider.getSigner(address);
-    const spender = address;
+    // const provider =await new ethers.providers.Web3Provider(web3Provider);
+    // const address = ethereumClient.getAccount().address;
+    // // console.log("JsonRpcProvider",web3Provider)
+    // const Signer = await provider.getSigner(address);
+    // const spender = address;
 
-    const CounterContract = new Contract(Counter,CounterAbi, Signer);
-    const transact =await CounterContract.getCount();
-
-    console.log("Token Address", transact);
-    const receipt = data;
+    const CounterContract = new Contract(Counter,CounterAbi, signer);
+    const transact =await CounterContract.setCount(20);
+    const receipt =await transact.wait();
     console.log("receip", receipt);
+    // console.log("Token Address", transact);
+   
     }
     catch(error){
       console.log("error",error)
